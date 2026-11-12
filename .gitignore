@@ -29,7 +29,8 @@ replay_pid*
 .project
 .settings/
 
-# OS / Env
+# OS / Env / Local Docker
 .DS_Store
 Thumbs.db
 .env
+docker-compose.yml
