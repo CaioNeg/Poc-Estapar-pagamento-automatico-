@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "br.com.estapar.poc.grpc.proto";
+option java_outer_classname = "TagGateValidatorProto";
+
+package estapar.tagzul;
+
+service TagGateValidatorService {
+  rpc ValidateAndAuthorizeGate (GatePassageRequest) returns (GatePassageResponse);
+}
+
+message GatePassageRequest {
+  string tag_code = 1;
+  string passage_type = 2;
+  string location_name = 3;
+  string amount = 4;
+}
+
+message GatePassageResponse {
+  bool authorized = 1;
+  string status = 2;
+  string message = 3;
+  int64 transaction_id = 4;
+  string remaining_balance = 5;
+}
