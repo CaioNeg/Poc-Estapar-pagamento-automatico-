@@ -58,9 +58,9 @@ public class TagZulPassageSteps {
         this.currentCustomerId = response.getBody().customerId();
     }
 
-    @E("ativa uma Tag Zul+ de codigo {string} para a placa {string} com saldo inicial de {bigdecimal}")
-    public void ativarTagZul(String tagCode, String placa, BigDecimal saldoInicial) {
-        CreateTagRequest request = new CreateTagRequest(currentCustomerId, tagCode, placa, saldoInicial);
+    @E("ativa uma Tag Zul+ de codigo {string} para a placa {string} com saldo inicial de {string}")
+    public void ativarTagZul(String tagCode, String placa, String saldoInicial) {
+        CreateTagRequest request = new CreateTagRequest(currentCustomerId, tagCode, placa, new BigDecimal(saldoInicial));
         HttpEntity<CreateTagRequest> entity = new HttpEntity<>(request, authHeaders());
 
         ResponseEntity<TagResponse> response = restTemplate.exchange(
@@ -75,13 +75,13 @@ public class TagZulPassageSteps {
         assertEquals(tagCode, response.getBody().tagCode());
     }
 
-    @Quando("o veiculo realiza uma passagem do tipo {string} no local {string} no valor de {bigdecimal}")
-    public void realizarPassagemRest(String tipo, String local, BigDecimal valor) {
+    @Quando("o veiculo realiza uma passagem do tipo {string} no local {string} no valor de {string}")
+    public void realizarPassagemRest(String tipo, String local, String valor) {
         RegisterPassageRequest request = new RegisterPassageRequest(
                 "ZUL-ESTAPAR-01",
                 PassageType.valueOf(tipo),
                 local,
-                valor
+                new BigDecimal(valor)
         );
         HttpEntity<RegisterPassageRequest> entity = new HttpEntity<>(request, authHeaders());
 
@@ -93,8 +93,8 @@ public class TagZulPassageSteps {
         );
     }
 
-    @Então("a passagem deve ser registrada com sucesso e o saldo restante da Tag {string} deve ser {bigdecimal}")
-    public void verificarPassagemESaldo(String tagCode, BigDecimal saldoEsperado) {
+    @Então("a passagem deve ser registrada com sucesso e o saldo restante da Tag {string} deve ser {string}")
+    public void verificarPassagemESaldo(String tagCode, String saldoEsperado) {
         assertEquals(HttpStatus.CREATED, lastPassageResponse.getStatusCode());
         assertNotNull(lastPassageResponse.getBody());
 
@@ -107,12 +107,12 @@ public class TagZulPassageSteps {
 
         assertEquals(HttpStatus.OK, tagResponse.getStatusCode());
         assertNotNull(tagResponse.getBody());
-        assertEquals(0, saldoEsperado.compareTo(tagResponse.getBody().balance()));
+        assertEquals(0, new BigDecimal(saldoEsperado).compareTo(tagResponse.getBody().balance()));
     }
 
-    @Quando("o motorista realiza uma recarga de {bigdecimal} na Tag {string}")
-    public void realizarRecarga(BigDecimal valorRecarga, String tagCode) {
-        RechargeTagRequest request = new RechargeTagRequest(valorRecarga);
+    @Quando("o motorista realiza uma recarga de {string} na Tag {string}")
+    public void realizarRecarga(String valorRecarga, String tagCode) {
+        RechargeTagRequest request = new RechargeTagRequest(new BigDecimal(valorRecarga));
         HttpEntity<RechargeTagRequest> entity = new HttpEntity<>(request, authHeaders());
 
         ResponseEntity<TagResponse> response = restTemplate.exchange(
@@ -125,8 +125,8 @@ public class TagZulPassageSteps {
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
-    @Então("o saldo atualizado da Tag {string} deve ser {bigdecimal}")
-    public void verificarSaldoAtualizado(String tagCode, BigDecimal saldoEsperado) {
+    @Então("o saldo atualizado da Tag {string} deve ser {string}")
+    public void verificarSaldoAtualizado(String tagCode, String saldoEsperado) {
         ResponseEntity<TagResponse> tagResponse = restTemplate.exchange(
                 "/api/v1/tags/" + tagCode,
                 HttpMethod.GET,
@@ -136,7 +136,7 @@ public class TagZulPassageSteps {
 
         assertEquals(HttpStatus.OK, tagResponse.getStatusCode());
         assertNotNull(tagResponse.getBody());
-        assertEquals(0, saldoEsperado.compareTo(tagResponse.getBody().balance()));
+        assertEquals(0, new BigDecimal(saldoEsperado).compareTo(tagResponse.getBody().balance()));
     }
 
     @Quando("a cancela valida via gRPC a Tag {string} no pedagio {string} com tarifa de {string}")
@@ -191,3 +191,4 @@ public class TagZulPassageSteps {
         return headers;
     }
 }
+
